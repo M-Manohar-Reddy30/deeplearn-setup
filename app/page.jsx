@@ -46,7 +46,11 @@ export default function Home() {
           {messages.length === 0 ? (
             <>
             <div className="flex items-center gap-3">
+<<<<<<< HEAD
               <Image src={assets.logo_icon} alt="Logo Icon" className="h-16 w-auto"/>
+=======
+              <Image src={assets.logo_icon} alt="" className="h-16"/>
+>>>>>>> 9492c9930b81f81f3e63090de84cb8f6db4492d1
               <p className="text-2xl font-medium">Hi, I'm DeepLearn.</p>
             </div>
             <p className="text-sm mt-2">How can I help you today?</p>
