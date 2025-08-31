@@ -11,11 +11,8 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "DeepLearn - ManoharReddy",
-  description: "Your AI Learning Platform",
-  icons: {
-    icon: "/logo_icon.svg", // or /favicon.ico
-  },
+  title: "DeepSeek - GreatStack",
+  description: "Full Stack Project",
 };
 
 export default function RootLayout({ children }) {
