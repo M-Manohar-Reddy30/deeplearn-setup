@@ -1,0 +1,24 @@
+{
+  "maven.terminal.customEnv": [
+    {
+      "environmentVariable": "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+      "value": "pk_test_bW9yYWwtc3RhbGxpb24tMzUuY2xlcmsuYWNjb3VudHMuZGV2JA"
+    },
+    {
+      "environmentVariable": "CLERK_SECRET_KEY",
+      "value": "sk_test_RjQhf63YqFyY301U5WZTQkIFnxkq7hvjDqS1qOqTyf"
+    },
+    {
+      "environmentVariable": "MONGODB_URI",
+      "value": "mongodb+srv://manoharreddyind_db_user:Nani@8888@deeplearn.finljwc.mongodb.net/"
+    },
+    {
+      "environmentVariable": "SIGNING_SECRET",
+      "value": "whsec_5LYj/V3J6CO7xNcyRQhKeby7bkOsm1+P"
+    },
+    {
+      "environmentVariable": "DEEPSEEK_API_KEY",
+      "value": "sk-97356490a3ac45f4a534c1a5b2930ded"
+    }
+  ]
+}

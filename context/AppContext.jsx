@@ -6,78 +6,120 @@ import toast from "react-hot-toast";
 
 export const AppContext = createContext();
 
-export const useAppContext = ()=>{
-    return useContext(AppContext)
-}
+export const useAppContext = () => {
+  return useContext(AppContext);
+};
 
-export const AppContextProvider = ({children})=>{
-    const {user} = useUser()
-    const {getToken} = useAuth()
+export const AppContextProvider = ({ children }) => {
+  const { user } = useUser();
+  const { getToken } = useAuth();
 
-    const [chats, setChats] = useState([]);
-    const [selectedChat, setSelectedChat] = useState(null);
+  const [chats, setChats] = useState([]);
+  const [selectedChat, setSelectedChat] = useState({ messages: [] });
 
-    const createNewChat = async ()=>{
-        try {
-            if(!user) return null;
+  // ✅ Create new chat
+  const createNewChat = async () => {
+    try {
+      if (!user) return null;
 
-            const token = await getToken();
+      const token = await getToken();
 
-            await axios.post('/api/chat/create', {}, {headers:{
-                Authorization: `Bearer ${token}`
-            }})
-
-            fetchUsersChats();
-        } catch (error) {
-            toast.error(error.message)
+      await axios.post(
+        "/api/chat/create",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+
+      fetchUsersChats();
+    } catch (error) {
+      toast.error(error.message);
     }
+  };
 
-    const fetchUsersChats = async ()=>{
-        try {
-            const token = await getToken();
-            const {data} = await axios.get('/api/chat/get', {headers:{
-                Authorization: `Bearer ${token}`
-            }})
-            if(data.success){
-                console.log(data.data);
-                setChats(data.data)
+  // ✅ Fetch all chats for current user
+  const fetchUsersChats = async () => {
+    try {
+      const token = await getToken();
+      const { data } = await axios.get("/api/chat/get", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-                 // If the user has no chats, create one
-                 if(data.data.length === 0){
-                    await createNewChat();
-                    return fetchUsersChats();
-                 }else{
-                    // sort chats by updated date
-                    data.data.sort((a, b)=> new Date(b.updatedAt) - new Date(a.updatedAt));
+      if (data.success) {
+        setChats(data.data);
 
-                     // set recently updated chat as selected chat
-                     setSelectedChat(data.data[0]);
-                     console.log(data.data[0]);
-                 }
-            }else{
-                toast.error(data.message)
-            }
-        } catch (error) {
-            toast.error(error.message)
+        // If no chats, create one
+        if (data.data.length === 0) {
+          await createNewChat();
+          return fetchUsersChats();
+        } else {
+          // Sort by most recently updated
+          data.data.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+
+          // Select most recent chat
+          setSelectedChat(data.data[0]);
         }
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
+  };
 
- useEffect(()=>{
-    if(user){
-        fetchUsersChats();
-    }
- }, [user])
+  // ✅ Send message to AI
+  const sendMessage = async (chatId, prompt) => {
+    try {
+      const token = await getToken();
 
-    const value = {
-        user,
-        chats,
-        setChats,
-        selectedChat,
-        setSelectedChat,
-        fetchUsersChats,
-        createNewChat
+      const { data } = await axios.post(
+        "/api/chat/ai",
+        { chatId, prompt },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (data.success) {
+        // Append user message + AI reply to selected chat
+        setSelectedChat((prev) => ({
+          ...prev,
+          messages: [...prev.messages, { role: "user", content: prompt }, data.data],
+        }));
+      } else {
+        toast.error(data.message || "Failed to get AI response");
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
-    
-    return <AppContext.Provider value={value}>{children}</AppContext.Provider>
-}
+  };
+
+  // Auto-fetch chats on login
+  useEffect(() => {
+    if (user) {
+      fetchUsersChats();
+    }
+  }, [user]);
+
+  const value = {
+    user,
+    chats,
+    setChats,
+    selectedChat,
+    setSelectedChat,
+    fetchUsersChats,
+    createNewChat,
+    sendMessage, // 👈 now available in context
+  };
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+};
